@@ -1,24 +1,27 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
+
+/**
+ * @author Alaa Mahmoud Ebrahim 20190105
+ * @author Rana Ihab Ahmed  20190207
+ * */
 
 public class ArithmeticCoding {
     private double LowRange;
     private double HighRange;
     HashMap<Character,Double> probabilities;
-    private ArrayList<Double> Low;
-    private ArrayList<Double> high;
     private ArrayList<Symbol> symbols;
+    private double code;
 
     ArithmeticCoding() {
         LowRange =0;
         HighRange =1;
         probabilities = new HashMap <> ();
-        Low = new ArrayList<> ();
-        high = new ArrayList<> ();
+        code = -1;
     }
 
-    public Symbol getSymbol(char tmp)
-    {
+    public Symbol getSymbol(char tmp) {
         for (int i=0;i<symbols.size ();i++) {
             if (symbols.get ( i ).symbol == tmp){
                 return symbols.get ( i );
@@ -30,10 +33,12 @@ public class ArithmeticCoding {
     public void Compress(String msg){
         for (int i=0;i<msg.length ();i++){
             Symbol x= getSymbol(msg.charAt(i));
-
-
+            LowRange = LowRange + (HighRange-LowRange)*x.getLowRange ();
+            HighRange = LowRange + (HighRange-LowRange)*x.getHighRange ();
         }
 
+        code = (LowRange+HighRange)/2;
+        System.out.println ("The compressed code is : "+code );
     }
 
     public void calcProbability(String txt) {
@@ -61,13 +66,42 @@ public class ArithmeticCoding {
                 Symbol S = new Symbol ( key,probabilities.get ( key ),symbols.get ( symbols.size( )-1 ).highRange, symbols.get ( symbols.size( )-1 ).highRange+probabilities.get ( key ));
                 symbols.add ( S );
             }
-            System.out.println(key + " = " + probabilities.get(key));
+            //System.out.println(key + " = " + probabilities.get(key));
         }
     }
 
+    public void Decompress(int msgSize){
+        LowRange =0;
+        HighRange = 1;
+        double newCode = code;
+        code = ((newCode-LowRange)/(HighRange-LowRange));
+        StringBuilder output = new StringBuilder (  );
+        for (int i=0;i<msgSize;i++){
+            for (int j =0;j<symbols.size ();j++){
+                if (code < symbols.get(j).getHighRange () && code>symbols.get ( j ).getLowRange ()){
+                    output.append ( symbols.get ( j ).getSymbol () );
+                    LowRange = LowRange + (HighRange - LowRange)*symbols.get ( j ).getLowRange ();
+                    HighRange = LowRange + (HighRange - LowRange)*symbols.get ( j ).getHighRange ();
+                    code = ((newCode-LowRange)/(HighRange-LowRange));
+                    break;
+                }
+            }
+        }
+
+        System.out.println ("The message is : "+ output );
+
+    }
+
     public static void main ( String[] args ) {
+        Scanner input = new Scanner ( System.in );
+        System.out.println ("Please, Enter the message : " );
+        String message = input.next ();
         ArithmeticCoding h = new ArithmeticCoding ();
-        h.calcProbability ( "ACBA" );
+        h.calcProbability ( message );
+        h.Compress ( message);
+        int size = message.length ();
+        h.Decompress ( size );
+
     }
 
 
