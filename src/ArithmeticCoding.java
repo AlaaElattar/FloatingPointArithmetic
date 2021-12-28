@@ -29,7 +29,7 @@ public class ArithmeticCoding {
 
     public void Compress(String msg){
         for (int i=0;i<msg.length ();i++){
-            Symbol x= getSymbol(msg.get(i));
+            Symbol x= getSymbol(msg.charAt(i));
 
 
         }
